@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><title>My Test Extension Options</title></head>
+<body>
+
+	<h1>General settings</h1>
+	<div id="general-settings">
+		<label for="token">Todoist API token:</label>
+		<input type="text" name="token" id="token" class="option" value="" />
+	</div>
+	<h1>Platform settings</h1>
+	<ul id="platform-settings">
+		<li>
+			<h2>Trello</h2>
+			<label for="trello-date">Default date string:</label>
+			<input type="text" id="trello-date" class="option" value="" />
+			<label for="trello-project">Default project (empty for Inbox):</label>
+			<input type="text" id="trello-project" class="option" value="" />
+			<label for="trello-labels">Default labels (comma seperated):</label>
+			<input type="text" id="trello-labels" class="option" value="" />
+		</li>
+	</ul>
+
+	<div id="status"></div>
+	<button id="save">Save</button>
+
+	<script src="../js/options.js"></script>
+</body>
+</html>
