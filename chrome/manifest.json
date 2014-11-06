@@ -13,6 +13,9 @@
 	"options_page": "html/options.html",
 	"content_scripts": [ {
 		"js": [ "lib/jquery-1.11.1.min.js", "js/todoist-quickadd.js" ],
-		"matches": [ "https://trello.com/*", "http://trello.com/*"]
+		"matches": [
+			"https://trello.com/*", 
+			"*://*/ticket/*"
+		]
 	}]
 }

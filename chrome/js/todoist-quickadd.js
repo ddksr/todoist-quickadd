@@ -60,10 +60,48 @@
 		resources = {
 			iconUrl: ch.extension.getURL('img/icon.png')
 		},
-		platformRgxs = {
-			trello: /trello\.com/
+		getPlatformProject = function (platform) {
+			var projId = null;
+			$.each(projects, function (i, projectInfo) {
+				if (projectInfo.name == options.platforms[platform].project) {
+					projId = projectInfo.id;
+					return false;
+				}
+				return true;
+			});
+			return projId;
+		},
+		platformUrlRgxs = {
+			trello: /trello\.com/,
+			trac: /trac.*\/ticket\/\d+/
 		},
 		platformInits = {
+			trac: function () {
+				var container=$('#ticket'),
+					tracProject = null,
+					addItemButton = $('<span><a class="todoist-quickadd-additem" href="#">Add to todoist</a></span>');
+				if (! container.length) { return false; }
+				if (projects === null) { return false; }
+				tracProject = getPlatformProject('trac');
+				$('h2 .trac-type').after(addItemButton);
+				$(container).on('click', selectors.addItem, function (evt) {
+					var content = ($('#trac-ticket-title').text() || '[no name]'),
+						item = {
+							content: window.location.href + ' (' + content.trim() + ')',
+							date_string: options.platforms.trac.date,
+							priority: 1
+						};
+					if (tracProject) {
+						item.project_id = tracProject;
+					}
+					if (options.platforms.trac.labels) {
+						item.content += ' @' + options.platforms.trac.labels.split(/, ?/).join(' @');
+					}
+					todoist.addItem(item);
+					$(selectors.addItem).fadeOut('slow');
+				});
+				return true;
+			},
 			trello: function () {
 				var container = $('.window-overlay .window .window-wrapper'),
 					trelloProject = null,
@@ -71,17 +109,7 @@
 					addItemButton = $('<a class="button-link todoist-quickadd-additem" title="Add to Todoist"> <span class="icon-sm icon-move"></span> Add to Todoist </a>');
 				if (! container.length || !container.html()) { return false; }
 				if (projects === null) { return false; }
-				trelloProject = (function () {
-					var projId = null;
-					$.each(projects, function (i, projectInfo) {
-						if (projectInfo.name == options.platforms.trello.project) {
-							projId = projectInfo.id;
-							return false;
-						}
-						return true;
-					});
-					return projId;
-				}());
+				trelloProject = getPlatformProject('trello');
 				container.find('.js-move-card').after(addItemButton);
 				container.bind("DOMSubtreeModified", function() {
 					var addItemElt = container.find(selectors.addItem);
@@ -99,6 +127,7 @@
 							date_string: options.platforms.trello.date,
 							priority: 1
 						};
+					item.content = window.location.href + ' (' + item.content + ')';
 					if ($('.card-detail-due-date-badge').length) {
 						due = $('.card-detail-due-date-badge').text();
 						if (due) {
@@ -145,7 +174,7 @@
 					retry(todoist.ping, 500, 4, [pingCb]);
 				};
 			todoist.ping(pingCb, pingErr);
-			$.each(platformRgxs, function (platformId, rgx) {
+			$.each(platformUrlRgxs, function (platformId, rgx) {
 				if (window.location.href.match(rgx)) {
 					platform = platformId;
 					return false;
@@ -170,6 +199,7 @@
 			if (segments.length == 1) {
 				options[key] = val;
 			} else {
+				if (!options.platforms[segments[0]]) { options.platforms[segments[0]] = {}; }
 				options.platforms[segments[0]][segments[1]] = val;
 			}
 		});

@@ -23,7 +23,13 @@ function restore_options() {
 		'token': '',
 		'trello-date': '',
 		'trello-project': '',
-		'trello-labels': ''
+		'trello-labels': '',
+		'trac-date': '',
+		'trac-project': '',
+		'trac-labels': '',
+		'github-date': '',
+		'github-project': '',
+		'github-labels': ''
 	}, function(items) {
 		var optionElts = document.getElementsByClassName('option'),
 			i, options = {};
