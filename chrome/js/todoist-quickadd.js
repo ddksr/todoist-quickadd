@@ -79,11 +79,11 @@
 			trac: function () {
 				var container=$('#ticket'),
 					tracProject = null,
-					addItemButton = $('<span><a class="todoist-quickadd-additem" href="#">Add to todoist</a></span>');
+					addItemButton = $('<a class="todoist-quickadd-additem" href="#">Add to Todoist</a> ');
 				if (! container.length) { return false; }
 				if (projects === null) { return false; }
 				tracProject = getPlatformProject('trac');
-				$('h2 .trac-type').after(addItemButton);
+				$('.trac-topnav').prepend(addItemButton);
 				$(container).on('click', selectors.addItem, function (evt) {
 					var content = ($('#trac-ticket-title').text() || '[no name]'),
 						item = {
