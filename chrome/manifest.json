@@ -13,6 +13,7 @@
 	"options_page": "html/options.html",
 	"content_scripts": [ {
 		"js": [ "lib/jquery-1.11.1.min.js", "js/todoist-quickadd.js" ],
+		"run_at" : "document_idle",
 		"matches": [
 			"https://trello.com/*", 
 			"*://*/ticket/*"

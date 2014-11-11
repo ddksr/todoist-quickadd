@@ -205,5 +205,5 @@
 		});
 		if (options.token) { start(); }
 	});
-	$(window).load(start);
+	start();
 }(jQuery, chrome));
