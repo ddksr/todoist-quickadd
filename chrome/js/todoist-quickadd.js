@@ -77,7 +77,7 @@
 		},
 		platformInits = {
 			trac: function () {
-				var container=$('#ticket'),
+				var container=$('#ticket').parent(),
 					tracProject = null,
 					addItemButton = $('<a class="todoist-quickadd-additem" href="#">Add to Todoist</a> ');
 				if (! container.length) { return false; }
