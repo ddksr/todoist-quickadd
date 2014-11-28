@@ -27,6 +27,11 @@ function restore_options() {
 		'trac-date': '',
 		'trac-project': '',
 		'trac-labels': '',
+		'feedly-date': '',
+		'feedly-project': '',
+		'feedly-labels': '',
+		'feedly-newbtabkey': 'h',
+		'feedly-savekey': 't',
 		'github-date': '',
 		'github-project': '',
 		'github-labels': ''

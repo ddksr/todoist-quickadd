@@ -3,6 +3,18 @@
 		options = null,
 		tokenValid = false,
 		projects = null,
+		helpers = {
+			openNewBackgroundTab: function (url) {
+				var a = document.createElement("a"),
+					evt = document.createEvent("MouseEvents");
+				a.href = url;
+
+				evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0,
+                                   true, false, false, false, 0, null);
+				a.dispatchEvent(evt);
+				console.log(url);
+			}
+		},
 		todoist = {
 			_request: function (method, data) {
 				var req = {
@@ -73,9 +85,51 @@
 		},
 		platformUrlRgxs = {
 			trello: /trello\.com/,
-			trac: /trac.*\/ticket\/\d+/
+			trac: /trac.*\/ticket\/\d+/,
+			feedly: /feedly\.com/
 		},
 		platformInits = {
+			feedly: function () {
+				if (!$('.entryHeader').length) { return false; }
+				var container = $('.sliderContainer .slideEntryContent'),
+					feedlyProject = null,
+					opts = options.platforms.feedly,
+					actions = {},
+					saveKey = opts.savekey.toUpperCase().charCodeAt(0),
+					newbtabKey = opts.newbtabkey.toUpperCase().charCodeAt(0);
+				
+				actions[saveKey] = function () {
+					var title = container.find('.entryTitle').text(),
+						url = container.find('.entryTitle').attr('href'),
+						item = {
+							content: url + ' (' + title.trim() + ')',
+							date_string: options.platforms.feedly.date,
+							priority: 1
+						};
+					if (feedlyProject) {
+						item.project_id = feedlyProject;
+					}
+					if (options.platforms.feedly.labels) {
+						item.content += ' @' + options.platforms.feedly.labels.split(/, ?/).join(' @');
+					}
+					console.log(item)
+					todoist.addItem(item);
+				};
+				actions[newbtabKey] = function () {
+					helpers.openNewBackgroundTab(container.find('.entryTitle').attr('href'));
+				};
+				feedlyProject = getPlatformProject('feedly');
+				$(window).on('keydown', function (evt) {
+					var key = evt.keyCode;
+					if (actions[key]) {
+						evt.preventDefault();
+						actions[key]();
+						return false;
+					}
+					return true;
+				});
+				return true;
+			},
 			trac: function () {
 				var container=$('#ticket').parent(),
 					tracProject = null,
