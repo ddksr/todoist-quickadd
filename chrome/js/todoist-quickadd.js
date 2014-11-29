@@ -90,33 +90,62 @@
 		},
 		platformInits = {
 			feedly: function () {
-				if (!$('.entryHeader').length) { return false; }
-				var container = $('.sliderContainer .slideEntryContent'),
-					feedlyProject = null,
+				if (!$('.entryHeader').length && !$('.entryList').length) { return false; }
+				var	feedlyProject = null,
 					opts = options.platforms.feedly,
 					actions = {},
 					saveKey = opts.savekey.toUpperCase().charCodeAt(0),
-					newbtabKey = opts.newbtabkey.toUpperCase().charCodeAt(0);
+					newbtabKey = opts.newbtabkey.toUpperCase().charCodeAt(0),
+					entryData = function () {
+						var url, title,
+							containerSidebar = $('.sliderContainer .slideEntryContent'),
+							containerTimeline = $('#timeline,#featuredArea'),
+							elt = containerTimeline.find('.selectedEntry');
+						if (elt.length) {
+							url = elt.data('alternate-link');
+							title = elt.data('title');
+							if (!url) {
+								elt = elt.find('a.title');
+								url = elt.attr('href');
+								title = elt.text();
+							}
+						} else if (!containerSidebar.length) {
+							return null;
+						} else {
+							elt = containerSidebar.find('.entryTitle');
+							url = elt.attr('href');
+							title = elt.text();
+						}
+						return {
+							url: url,
+							title: title
+						};
+					};
 				
 				actions[saveKey] = function () {
-					var title = container.find('.entryTitle').text(),
-						url = container.find('.entryTitle').attr('href'),
+					var entry = entryData(),
+						containerSidebar = $('.sliderContainer .slideEntryContent'),
+						containerTimeline = $('#timeline,#featuredArea'),
 						item = {
-							content: url + ' (' + title.trim() + ')',
+							content: '',
 							date_string: options.platforms.feedly.date,
 							priority: 1
 						};
-					if (feedlyProject) {
-						item.project_id = feedlyProject;
+					if (entry !== null) { 
+						item.content = entry.url + ' (' + entry.title.trim() + ')';
+						if (feedlyProject) {
+							item.project_id = feedlyProject;
+						}
+						if (options.platforms.feedly.labels) {
+							item.content += ' @' + options.platforms.feedly.labels.split(/, ?/).join(' @');
+						}
+						todoist.addItem(item);
 					}
-					if (options.platforms.feedly.labels) {
-						item.content += ' @' + options.platforms.feedly.labels.split(/, ?/).join(' @');
-					}
-					console.log(item)
-					todoist.addItem(item);
 				};
 				actions[newbtabKey] = function () {
-					helpers.openNewBackgroundTab(container.find('.entryTitle').attr('href'));
+					var entry = entryData();
+					if (entry) { helpers.openNewBackgroundTab(entry.url); }
+					
 				};
 				feedlyProject = getPlatformProject('feedly');
 				$(window).on('keydown', function (evt) {
