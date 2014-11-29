@@ -118,7 +118,8 @@
 						}
 						return {
 							url: url,
-							title: title
+							title: title,
+							elt: elt
 						};
 					};
 				
@@ -139,7 +140,9 @@
 						if (options.platforms.feedly.labels) {
 							item.content += ' @' + options.platforms.feedly.labels.split(/, ?/).join(' @');
 						}
-						todoist.addItem(item);
+						todoist.addItem(item, function () {
+							entry.elt.css('text-decoration', 'line-through');
+						});
 					}
 				};
 				actions[newbtabKey] = function () {
