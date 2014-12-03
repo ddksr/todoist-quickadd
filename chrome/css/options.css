@@ -1,0 +1,76 @@
+body {
+	background: white;
+}
+
+.block {
+	padding: 10px;
+	background: #f2f2f2;
+}
+
+ul.platforms {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+ul.platforms li.platform {
+	padding: 5px 0 0 15px;
+	margin: 0;
+	background: #f2f2f2;
+	width: 600px;
+}
+
+h2 {
+	margin: 4px 0
+}
+
+.platform div.border {
+	border-top: 1px solid black;
+	padding-top: 5px;
+	margin-top: 10px;
+	width: 100%;
+	height: auto;
+}
+
+.platform div {
+	width: 100%;
+	margin: 5px 0;
+	line-height: 25px;
+	position: relative;
+	height: 25px;
+}
+
+.platform div label {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.platform div label.checkbox {
+	width: 100%;
+	margin-top: 20px;
+}
+
+.platform div input[type=text] {
+	display: block;
+	width: 50%;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+#general-settings {
+}
+
+#platform-settings {
+
+}
+
+input[type=text] {
+	border-radius: 10px;
+	padding: 2px;
+}
+
+.clear {
+	clear: both;
+}
