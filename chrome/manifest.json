@@ -18,7 +18,8 @@
 		"matches": [
 			"https://trello.com/*",
 			"https://feedly.com/*", 
-			"*://*/ticket/*"
+			"*://*/ticket/*",
+			"*://github.com/*"
 		]
 	}]
 }

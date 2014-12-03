@@ -1,9 +1,14 @@
 // Saves options to chrome.storage
 function save_options() {
 	var optionElts = document.getElementsByClassName('option'),
-		i, options = {};
+		i, options = {}, opt = null;
 	for (i = 0; i < optionElts.length; i++) {
-		options[optionElts[i].id] = optionElts[i].value;
+		opt = optionElts[i];
+		if (opt.type && opt.type == 'checkbox') {
+			options[opt.id] = opt.checked;
+		} else {
+			options[opt.id] = opt.value;
+		}
 	}
 	chrome.storage.sync.set(options, function() {
 		// Update status to let user know options were saved.
@@ -34,12 +39,20 @@ function restore_options() {
 		'feedly-savekey': 't',
 		'github-date': '',
 		'github-project': '',
-		'github-labels': ''
+		'github-labels': '',
+		'github-useprojname': false
 	}, function(items) {
 		var optionElts = document.getElementsByClassName('option'),
-			i, options = {};
+			i, options = {},
+			opt = null;
 		for (i = 0; i < optionElts.length; i++) {
-			optionElts[i].value = items[optionElts[i].id];
+			opt = optionElts[i];
+			if (opt.type && opt.type == 'checkbox') {
+				opt.checked = items[opt.id];
+			} else {
+				opt.value = items[opt.id];
+			}
+			
 		}
 		
   });

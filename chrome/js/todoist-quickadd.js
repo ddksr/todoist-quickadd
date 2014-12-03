@@ -72,10 +72,13 @@
 		resources = {
 			iconUrl: ch.extension.getURL('img/icon.png')
 		},
-		getPlatformProject = function (platform) {
-			var projId = null;
+		getPlatformProject = function (platform, search) {
+			var projId = null,
+				opts = options.platforms[platform];
 			$.each(projects, function (i, projectInfo) {
-				if (projectInfo.name == options.platforms[platform].project) {
+				var okDef = projectInfo.name == opts.project,
+					okSearch = search && projectInfo.name.toLowerCase().indexOf(search.toLowerCase()) != -1;
+				if (okDef || okSearch) {
 					projId = projectInfo.id;
 					return false;
 				}
@@ -86,9 +89,47 @@
 		platformUrlRgxs = {
 			trello: /trello\.com/,
 			trac: /trac.*\/ticket\/\d+/,
-			feedly: /feedly\.com/
+			feedly: /feedly\.com/,
+			github: /github\.com/
 		},
 		platformInits = {
+			github: function () {
+				var githubProject = null,
+					addButton = $('<a href="#" class="minibutton '+ selectors.addItem+ '" data-hotkey="c">Add to Todoist</a>'),
+					opts = options.platforms.github,
+					searchers = [
+						$('h1 .js-current-repository').text(),
+						$('h1 .author').text()
+					];
+				if (!projects || !$('#show_issue').length) { return false; }
+
+				githubProject = getPlatformProject('github',
+												   opts.useprojname && searchers[0]);
+				if (opts.useprojname && !githubProject) {
+					githubProject = getPlatformProject('github', searchers[1]);
+				}
+				
+				$('.gh-header-actions').prepend(addButton);
+				addButton.on('click', function (evt) {
+					evt.preventDefault();
+					var item = { date_string: opts.date || '' },
+						titleElt = $('.gh-header-title').children(),
+						title = $.map(titleElt, function (obj) {
+							return $(obj).text();
+						}).join(' '),
+						url = window.location.href;
+					item.content = url + ' (' + title + ')';
+					if (githubProject) {
+						item.project_id = githubProject;
+					}
+					if (opts.labels) {
+						item.content += ' @' + opts.labels.split(/, ?/).join(' @');
+					}
+					todoist.addItem(item);
+					$(this).fadeOut('slow');
+				});
+				return true;
+			},
 			feedly: function () {
 				if (!$('.entryHeader').length && !$('.entryList').length) { return false; }
 				var	feedlyProject = null,
