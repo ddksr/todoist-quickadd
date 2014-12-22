@@ -95,13 +95,13 @@
 		platformInits = {
 			github: function () {
 				var githubProject = null,
-					addButton = $('<a href="#" class="minibutton '+ selectors.addItem+ '" data-hotkey="c">Add to Todoist</a>'),
+					addButton = $('<a href="#" class="minibutton '+ selectors.addItem+ '">Add to Todoist</a>'),
 					opts = options.platforms.github,
 					searchers = [
 						$('h1 .js-current-repository').text(),
 						$('h1 .author').text()
 					];
-				if (!projects || !$('#show_issue').length) { return false; }
+				if (!$('#show_issue').length) { return false; }
 
 				githubProject = getPlatformProject('github',
 												   opts.useprojname && searchers[0]);
@@ -162,30 +162,31 @@
 							title: title,
 							elt: elt
 						};
+					},
+					saveArticle = function () {
+						var ent = entryData(),
+							labels,
+							item = {
+								content: '',
+								date_string: options.platforms.feedly.date,
+								priority: 1
+							};
+						if (ent !== null) { 
+							item.content = ent.url + ' (' + ent.title.trim() + ')';
+							if (feedlyProject) {
+								item.project_id = feedlyProject;
+							}
+							if (options.platforms.feedly.labels) {
+								labels = ' @' + opts.labels.split(/, ?/).join(' @');
+								item.content += labels;
+							}
+							todoist.addItem(item, function () {
+								ent.elt.css('text-decoration', 'line-through');
+							});
+						}
 					};
 				
-				actions[saveKey] = function () {
-					var entry = entryData(),
-						containerSidebar = $('.sliderContainer .slideEntryContent'),
-						containerTimeline = $('#timeline,#featuredArea'),
-						item = {
-							content: '',
-							date_string: options.platforms.feedly.date,
-							priority: 1
-						};
-					if (entry !== null) { 
-						item.content = entry.url + ' (' + entry.title.trim() + ')';
-						if (feedlyProject) {
-							item.project_id = feedlyProject;
-						}
-						if (options.platforms.feedly.labels) {
-							item.content += ' @' + options.platforms.feedly.labels.split(/, ?/).join(' @');
-						}
-						todoist.addItem(item, function () {
-							entry.elt.css('text-decoration', 'line-through');
-						});
-					}
-				};
+				actions[saveKey] = saveArticle();
 				actions[newbtabKey] = function () {
 					var entry = entryData();
 					if (entry) { helpers.openNewBackgroundTab(entry.url); }
@@ -194,7 +195,7 @@
 				feedlyProject = getPlatformProject('feedly');
 				$(window).on('keydown', function (evt) {
 					var key = evt.keyCode;
-					if (actions[key]) {
+					if (!$(evt.target).is('input') && actions[key]) {
 						evt.preventDefault();
 						actions[key]();
 						return false;
@@ -296,23 +297,27 @@
 		initialize = function () {
 			var pingCb = function () {
 					projects = todoist.getProjects();
+					init();
 				},
 				pingErr = function () {
 					retry(todoist.ping, 500, 4, [pingCb]);
+				},
+				init = function () {
+					$.each(platformUrlRgxs, function (platformId, rgx) {
+						if (window.location.href.match(rgx)) {
+							platform = platformId;
+							return false;
+						}
+						return true;
+					});
+					if (options !== null && platform !== null) {
+						if (! platformInits[platform]()) {
+							retry(platformInits[platform], 500);
+						}
+					}
 				};
 			todoist.ping(pingCb, pingErr);
-			$.each(platformUrlRgxs, function (platformId, rgx) {
-				if (window.location.href.match(rgx)) {
-					platform = platformId;
-					return false;
-				}
-				return true;
-			});
-			if (options !== null && platform !== null) {
-				if (! platformInits[platform]()) {
-					retry(platformInits[platform], 500);
-				}
-			}
+			
 		};
 	ch.storage.sync.get(function(items) {
 		options = {
